@@ -27,12 +27,6 @@ var SpecialCharsArray =
    "]", "^", "_", "`", "{", "|", "}", "~"];
 const SPECIALS_LEN = 32;
 
-// password length, pwdLen is a user input subject to required minimum and maximum
-// length limits.
-const MIN_LEN = 8;
-const MAX_LEN = 128;
-var pwdLen = MIN_LEN;
-
 // usageCounts[] is the password requirements array, where for each character set, the 
 // matching position value is interpreted as:
 //   a) -1: do not use this character set.
@@ -41,7 +35,6 @@ const LOWERS   = 0;
 const UPPERS   = 1;
 const DIGITS   = 2;
 const SPECIALS = 3;
-var usageCounts = [0,0,0,0];
 
 //*** Functions ***/
 
@@ -106,23 +99,29 @@ function generatePassword(pwdLen,usageCounts)
 
   // Create an array holding pwdLen ascending integers starting at 0.
   // These are the candidate locations for mandatory character types in the password.
-  for (var i = 0; i < pwdLen; i++) { numberArr.push(i); }
+  for (i = 0; i < pwdLen; i++) { numberArr.push(i); }
 
-  // Add up the total number of mandatory character type assignments
-  totalMandatory = 0;
-  for (i = LOWER; i <= SPECIAL; i++) { if (usageCounts[i] > 0) { totalMandatory += usageCounts[i]; } }
-
-  if (totalMandatory)
+  // assign positions for mandatory lower case characters
+  if (usageCounts[LOWERS] > 0)
   {
     assignMandatories(usageCounts[LOWERS]  ,  lowerMandatories);
-    lowerMandatories.sort(function(a, b){return a-b});
-
+    lowerMandatories.sort(  function(a, b){return a-b});
+  }
+  // assign positions for mandatory upper case characters
+  if (usageCounts[UPPERS] > 0)
+  {
     assignMandatories(usageCounts[UPPERS]  ,  upperMandatories);
-    upperMandatories.sort(function(a, b){return a-b});
-  
+    upperMandatories.sort(  function(a, b){return a-b});
+  }
+  // assign positions for mandatory digits
+  if (usageCounts[DIGITS] > 0)
+  {
     assignMandatories(usageCounts[DIGITS]  ,  digitMandatories);
-    digitMandatories.sort(function(a, b){return a-b});
-  
+    digitMandatories.sort(  function(a, b){return a-b});
+  }
+  // assign positions for mandatory special characters
+  if (usageCounts[SPECIALS] > 0)
+  {
     assignMandatories(usageCounts[SPECIALS],specialMandatories);
     specialMandatories.sort(function(a, b){return a-b});
   }
@@ -130,44 +129,40 @@ function generatePassword(pwdLen,usageCounts)
   // if not all positions are reserved, build a single array using all sets which may
   // be used as indicated by not having a usageCounts value of -1.  Use concat to build
   // the single array.
-  if (totalMandatory < pwdLen)
-  {
-    var bigArray = [];
-    if (usageCounts[LOWERS]   != -1) { bigArray.concat(LowerCaseArray);  }
-    if (usageCounts[UPPERS]   != -1) { bigArray.concat(UpperCaseArray);  }
-    if (usageCounts[DIGITS]   != -1) { bigArray.concat(DigitsArray);     }
-    if (usageCounts[SPECIALS] != -1) { bigArray.concat(SpecialCaseArray);}
-  }  
-
+  var bigArray = [];
+  if (usageCounts[LOWERS]   != -1) { bigArray = bigArray.concat(LowerCaseArray);   }
+  if (usageCounts[UPPERS]   != -1) { bigArray = bigArray.concat(UpperCaseArray);   }
+  if (usageCounts[DIGITS]   != -1) { bigArray = bigArray.concat(DigitsArray);      }
+  if (usageCounts[SPECIALS] != -1) { bigArray = bigArray.concat(SpecialCharsArray);}
 
   // loop through all password positions.  At each, check if it is an assigned set position
   // and fill at random from that set if so.  Otherwise, assign to the position at random
   // from the combined set.
   for (i = 0; i < pwdLen; i++)
   {
-    if (lowerMandatories.length && lowerMandories[0] == i)
+    if (lowerMandatories.length && lowerMandatories[0] == i)
     {
       j = Math.floor(Math.random()*LowerCaseArray.length);
       pwdArray.push(LowerCaseArray[j]);
-      lowerMandories.shift();
+      lowerMandatories.shift();
     }
-    else if (upperMandatories.length && upperMandories[0] == i)
+    else if (upperMandatories.length && upperMandatories[0] == i)
     {
       j = Math.floor(Math.random()*UpperCaseArray.length);
       pwdArray.push(UpperCaseArray[j]);
-      upperMandories.shift();
+      upperMandatories.shift();
     }
-    else if (digitMandatories.length && digitMandories[0] == i)
+    else if (digitMandatories.length && digitMandatories[0] == i)
     {
       j = Math.floor(Math.random()*DigitsArray.length);
       pwdArray.push(DigitsArray[j]);
-      digitMandories.shift();
+      digitMandatories.shift();
     }
-    else if (specialMandatories.length && specialMandories[0] == i)
+    else if (specialMandatories.length && specialMandatories[0] == i)
     {
-      j = Math.floor(Math.random()*SpecialCaseArray.length);
-      pwdArray.push(SpecialCaseArray[j]);
-      specialMandories.shift();
+      j = Math.floor(Math.random()*SpecialCharsArray.length);
+      pwdArray.push(SpecialCharsArray[j]);
+      specialMandatories.shift();
     }
     else
     {
@@ -181,47 +176,68 @@ function generatePassword(pwdLen,usageCounts)
   return(pwdArray.join(""));
 }
 
+// Listen for the Generate button
+var generateBtn = document.querySelector("#generate");
+generateBtn.addEventListener("click", writePassword);
+
 // function writePassword() generates and writes a password into the #password 
 // display area
 function writePassword() 
 {
-  // build usageCounts based on UI inputs -- encode each location based on the
-  // scheme described above.
+  // user-supplied variables
+  var pwdLen = Number(document.querySelector("#pwdLen").value);
 
-  // call password generator 
-  var password = generatePassword(pwdLen,usageCounts);
+  var mayUseLowerCase = document.getElementById("mayUseLowerCase").checked;
+  var mayUseUpperCase = document.getElementById("mayUseUpperCase").checked;
+  var mayUseDigits    = document.getElementById("mayUseDigits"   ).checked;
+  var mayUseSpecials  = document.getElementById("mayUseSpecials" ).checked;
+  
+  var lowersMustUse   = Number(document.querySelector("#lowersMustUse"  ).value);
+  var uppersMustUse   = Number(document.querySelector("#uppersMustUse"  ).value);
+  var digitsMustUse   = Number(document.querySelector("#digitsMustUse"  ).value);
+  var specialsMustUse = Number(document.querySelector("#specialsMustUse").value);
 
-  // @@@@@ debug
-  console.log(password);
+  if (pwdLen < (lowersMustUse + uppersMustUse + digitsMustUse + specialsMustUse))
+  {
+    alert("Total of mandatory characters exceeds password length.  Please adjust.");
+  }
+  else
+  {
+    // interpret input
+    var usageCounts = [0,0,0,0];
+    usageCounts[LOWERS]   = mayUseLowerCase ? lowersMustUse   : -1;
+    usageCounts[UPPERS]   = mayUseUpperCase ? uppersMustUse   : -1;
+    usageCounts[DIGITS]   = mayUseDigits    ? digitsMustUse   : -1;
+    usageCounts[SPECIALS] = mayUseSpecials  ? specialsMustUse : -1;
+    
+    // call password generator 
+    var password = generatePassword(pwdLen,usageCounts);
 
-  // @@@@@ don't know what this is doing specifically;
-  // broadly it's supplying an object with a value field
-  // that can hold the new password.
-  var passwordText = document.querySelector("#password");
+    // create an object for display in the password box
+    // and assign the password string to the object.
+    var passwordText = document.querySelector("#password");
+    passwordText.value = password;
 
-  // which is assigned here and is presumably also written into the password display box.
-  passwordText.value = password;
-
-  // and here's the code that activates the Copy to Clipboard button
-  copyBtn.removeAttribute("disabled");
-  copyBtn.focus();
+    // and here's the code that activates the Copy to Clipboard button
+    copyBtn.removeAttribute("disabled");
+    copyBtn.focus();
+  }
 }
+
+// Listen for the Generate button
+var clipboardBtn = document.querySelector("#copyBtn");
+clipboardBtn.addEventListener("click", copyToClipboard);
 
 // function copyToClipboard(pwdStr) copies pwdStr to the OS clipboard
 // as an aid to the user in storing their newly minted password. 
-function copyToClipboard(pwdStr) 
+function copyToClipboard() 
 {
-  // BONUS 
+  var copyText = document.getElementById("password");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999)
+  document.execCommand("copy");
+  alert("Password copied to Clipboard"); 
 }
-
-// Assignment Code
-var generateBtn = document.querySelector("#generate");
-
-// Add event listener to generate button
-generateBtn.addEventListener("click", writePassword);
-
-// BONUS EVENT LISTENER
-
 
 
 
