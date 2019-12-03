@@ -9,37 +9,88 @@ index.html file.
   background-image: url("../images/darkgray-backsplash-tile.jpg");
 } */
 
-/* NameBox uses typical CSS for a box with text. */
+/* NameBox - yellow "pill" with title. */
 .NameBox {
-    width: 100%;
-    height: 200px;
-    padding: 40px;
-    margin: 20px;
+    width: 75%;
+    height: 100px;
+    padding: 4px;
+    margin: 20px 0 20px 40px;
     text-align: center;
     background: yellow;
-    font-family: 'Do Hyeon','Shrikhand', sans-serif, cursive;
-    font-size: 20px;
-    font-style: bold;
     color: black;
     border-radius: 100px;
     border: solid 1px black;
-    /* background-image: url("../images/hexagons.png"); */
 }
 
-/* Format for the Portfolio Header */
-.WhiteTitle {
-    float: left;
-    padding: 30px 0 20px 0;
-    width: 100%;
+/* */
+#lenQuery {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.2;
+    margin: 0 auto;
     text-align: center;
-    color: white;
-    font-family: 'Rubik Mono One', sans-serif;
 }
 
-#password {
-  width: 612px;
-  text-align: center;
-  font-family: 'Lucida Console', sans-serif;
+.dialogHeader {
+    padding: 10px 0;
+    margin: 5px 0 0 0;
+ }
+
+.form-check-label {
+    width: 360px;
+    margin: 0 0 0 20px;
+    line-height: 2.0;
+}
+
+.form-check-input {
+  height: 20px;
+  width:  20px;
+  margin: 6px 0 0 -20px;
+}
+
+.numericBox {
+  width: 50px;
+  height: 20px;
+  margin: 3px;
+}
+
+.passwordBox > #password {
+    width: 437px;
+    height: 110px;
+    text-align: center;
+    padding: 2px;
+    font-family: 'Lucida Console', sans-serif;
+    background: lightgray;
+}
+
+#generate, #copyBtn {
+    width: 40%;
+    margin: 0 1% 0 20px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.2;
+    border-radius: 100px;
+    border: solid 1px;
+}
+
+#generate {
+  background-color: red;
+  text-height: 24px;
+  text-emphasis: bolder;
+  border: black;
+}
+
+#copyBtn {
+  background-color: lightgray;
+  text-height: 24px;
+  text-emphasis: bolder;
+  border: gray;
+}
+
+#copyBtn.buttonEnabled {
+  background-color: green;
+  border: black;
 }
 
 /* Responsive coding using breakpoints */
@@ -60,6 +111,10 @@ index.html file.
 @media screen and (max-width: 320px) {
   body {
     background-color: #333;
+  }
+
+  .NameBox.h3 {
+    font-size: 12px;
   }
 
   .container {

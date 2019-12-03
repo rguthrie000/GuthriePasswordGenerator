@@ -1,45 +1,45 @@
 // Password Generator JS file
 // Guthrie, 20191203
 
-//*** Global Data and Constants ****/
+//*********************************/
+//*** Global Data and Constants ***/
+//*********************************/
 
 // Separate arrays are defined where each contains the members of its
 // named group of characters.
 var LowerCaseArray = 
   ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-const LOWERS_LEN = 26;
 
 var UpperCaseArray = 
   ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
    "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
-const UPPERS_LEN = 26;
 
 var DigitsArray = 
   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-const DIGITS_LEN = 10;
 
 // Note use of escape characters for double quote, backslash, and apostrophe.
 var SpecialCharsArray = 
-  ["!", "\"","#", "$", "%", "&", "(", ")",
-   "*", "+","\'", ",", "-", ".", "/", ":",
-   ";", "<", "=", ">", "?","\\", "@", "[",
-   "]", "^", "_", "`", "{", "|", "}", "~"];
-const SPECIALS_LEN = 32;
+  ["!", "\"","#", "$", "%", "&", "(", ")","*", "+","\'", ",", "-", ".", "/", ":",
+   ";", "<", "=", ">", "?","\\", "@", "[","]", "^", "_", "`", "{", "|", "}", "~"];
 
-// usageCounts[] is the password requirements array, where for each character set, the 
-// matching position value is interpreted as:
-//   a) -1: do not use this character set.
-//   b) Non-negative integer: the minimum number of characters from this character set.
+// For readability, use these constants as indexes for character sets.
 const LOWERS   = 0;
 const UPPERS   = 1;
 const DIGITS   = 2;
 const SPECIALS = 3;
 
+//*****************/
 //*** Functions ***/
+//*****************/
 
+//*****************************************************************************
 // function generatePassword(pwdLen, usageCounts) returns a character string of length
-// pwdLen whose characters follow the requirements provided by usageCounts[]
+// pwdLen whose characters follow the requirements provided by usageCounts[].
+// usageCounts[] is an array of mandatory character counts indexed by the type
+// constants defined globally.  Each value is interpreted as:
+//   a) -1: do not use this character set.
+//   b) Non-negative integer: the minimum number of characters from this character set.
 //
 // NOTE: generatePassword does not error-check pwdLen or its relationship to the 
 // values in usageCounts[].  The UI must ensure that:
@@ -47,7 +47,6 @@ const SPECIALS = 3;
 //   b) the sum of required characters across the four character sets
 //      does not exceed the required password length.
 //
-
 function generatePassword(pwdLen,usageCounts)
 {
   var pwdArray = [];
@@ -81,21 +80,21 @@ function generatePassword(pwdLen,usageCounts)
   {
     var selectedIndex = 0;
 
-    // each loop iteration finds one value, stuffs it into mandatoryArray, and removes it from numberArr
+    // each loop iteration finds one value, stuffs it into mandatoryArray, and 
+    // removes it from numberArr[].  Removing the value ensures it will only
+    // be used once across character sets.
     for (var i = 0; i < howMany; i++)
     {
       // random selection of index into numberArr
       selectedIndex = Math.floor(Math.random()*numberArr.length);
-
       // value at the selected location is added to mandatoryArray
       mandatoryArray.push(numberArr[selectedIndex]);
-
       // and removed from numberArr (which reduces the length of numberArr)
       numberArr.splice(selectedIndex,1);
     }
   }
 
-  // Start body of generatePassword()
+  // Here's the body of generatePassword()
 
   // Create an array holding pwdLen ascending integers starting at 0.
   // These are the candidate locations for mandatory character types in the password.
@@ -176,34 +175,40 @@ function generatePassword(pwdLen,usageCounts)
   return(pwdArray.join(""));
 }
 
-// Listen for the Generate button
-var generateBtn = document.querySelector("#generate");
-generateBtn.addEventListener("click", writePassword);
-
+//*****************************************************************************
 // function writePassword() generates and writes a password into the #password 
 // display area
 function writePassword() 
 {
   // user-supplied variables
   var pwdLen = Number(document.querySelector("#pwdLen").value);
-
+  // read status of checkboxes for permission to use different char types
   var mayUseLowerCase = document.getElementById("mayUseLowerCase").checked;
   var mayUseUpperCase = document.getElementById("mayUseUpperCase").checked;
   var mayUseDigits    = document.getElementById("mayUseDigits"   ).checked;
   var mayUseSpecials  = document.getElementById("mayUseSpecials" ).checked;
-  
+  // and read required minimums by character type
   var lowersMustUse   = Number(document.querySelector("#lowersMustUse"  ).value);
   var uppersMustUse   = Number(document.querySelector("#uppersMustUse"  ).value);
   var digitsMustUse   = Number(document.querySelector("#digitsMustUse"  ).value);
   var specialsMustUse = Number(document.querySelector("#specialsMustUse").value);
 
-  if (pwdLen < (lowersMustUse + uppersMustUse + digitsMustUse + specialsMustUse))
+  // check for more mandatories requested than length allows.  Pop an alert if so,
+  // then let the user fix the assignments before trying again.
+  if (pwdLen < (totalMandatory = lowersMustUse+uppersMustUse+digitsMustUse+specialsMustUse))
   {
-    alert("Total of mandatory characters exceeds password length.  Please adjust.");
+    alert("Oops! Total mandatory characters exceeds password length by " + 
+          (totalMandatory-pwdLen)+".\n\nPlease adjust password length, " +
+          "mandatory counts, or both!");
+  }
+  else if (!mayUseLowerCase && !mayUseUpperCase && !mayUseDigits && !mayUseSpecials)
+  {
+    alert("Hey! No character types have been selected!\n\nPlease check at least one character type.");
   }
   else
   {
-    // interpret input
+    // build the data structure used by generatePassword().
+    // (see generatePassword()).
     var usageCounts = [0,0,0,0];
     usageCounts[LOWERS]   = mayUseLowerCase ? lowersMustUse   : -1;
     usageCounts[UPPERS]   = mayUseUpperCase ? uppersMustUse   : -1;
@@ -219,17 +224,15 @@ function writePassword()
     passwordText.value = password;
 
     // and here's the code that activates the Copy to Clipboard button
-    copyBtn.removeAttribute("disabled");
-    copyBtn.focus();
+    clipboardBtn.removeAttribute("disabled");
+    clipboardBtn.classList.add("buttonEnabled");
+    clipboardBtn.focus();
   }
 }
 
-// Listen for the Generate button
-var clipboardBtn = document.querySelector("#copyBtn");
-clipboardBtn.addEventListener("click", copyToClipboard);
-
-// function copyToClipboard(pwdStr) copies pwdStr to the OS clipboard
-// as an aid to the user in storing their newly minted password. 
+//*****************************************************************************
+// function copyToClipboard(pwdStr) fetches the currently displayed
+// password from textarea "password" and copies it to the OS clipboard.
 function copyToClipboard() 
 {
   var copyText = document.getElementById("password");
@@ -239,5 +242,20 @@ function copyToClipboard()
   alert("Password copied to Clipboard"); 
 }
 
+//**********************/
+//*** Event Monitors ***/
+//**********************/
 
+// Listen for the Generate button.  On activation, call 
+// writePassword(), which reads the dialogs, generates a
+// compliant password, and assigns it for writing on
+// the page.
+var generateBtn = document.querySelector("#generate");
+generateBtn.addEventListener("click", writePassword);
+
+// Listen for the Copy to Clipboard button.  On activation,
+// call copyToClipboard to fetch the password and copy it
+// to the OS clipboard.
+var clipboardBtn = document.querySelector("#copyBtn");
+clipboardBtn.addEventListener("click", copyToClipboard);
 
