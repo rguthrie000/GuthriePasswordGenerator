@@ -35,19 +35,20 @@ const SPECIALS = 3;
 
 //*****************************************************************************
 // function generatePassword(pwdLen, usageCounts) returns a character string of length
-// pwdLen whose characters follow the requirements provided by usageCounts[].
+// pwdLen whose characters follow the requirements as specified in usageCounts[].
 // usageCounts[] is an array of mandatory character counts indexed by the type
 // constants defined globally.  Each value is interpreted as:
 //   a) -1: do not use this character set.
 //   b) Non-negative integer: the minimum number of characters from this character set.
 //
-// NOTE: generatePassword does not error-check pwdLen or its relationship to the 
+// NOTE: generatePassword() does not error-check pwdLen or its relationship to the 
 // values in usageCounts[].  The UI must ensure that:
 //   a) password length (pwdLen) meets any required length limits
-//   b) the sum of required characters across the four character sets
+//   b) not all usageCounts[] elements are -1.
+//   c) the sum of required characters across the four character sets
 //      does not exceed the required password length.
 //
-function generatePassword(pwdLen,usageCounts)
+function generatePassword(pwdLen,totalMandatory,usageCounts)
 {
   var pwdArray = [];
   var i = 0;
@@ -55,23 +56,24 @@ function generatePassword(pwdLen,usageCounts)
 
   // To provide for minimum numbers of required characters by sets --
   // build 4 arrays holding assigned positions of characters from the corresponding set.
-  // That is, each array holds positions in the password string which will be reserved
+  // That is, each array holds positions in the password array which will be reserved
   // for assignment of characters from its set.  These values will be found at 
-  // (pseudo-)random and will be unique across all the character sets.  Each array will
-  // be sorted in ascending order.
+  // (pseudo-)random and will be unique across all the character sets. After the
+  // random assignments, each 'mandatories' array is sorted in ascending order.
   var lowerMandatories   = [];
   var upperMandatories   = [];
   var digitMandatories   = [];
   var specialMandatories = [];
-
+  
   var numberArr = [];
 
   // assignMandatories(howMany, mandatoryArray) stuffs howMany values selected at random
   // from numberArr into mandatoryArray.  After a value from numberArr is used, that value
   // is removed from numberArr, so it will no longer be a candidate for selection.
+  //
   // A simple example of a first loop iteration:
   // 1. suppose numberArr = [0,1,2,3], so numberArr.length is 4
-  // 2. Math.floor(Math.random()*4) gives an integer in 0..3.  Suppose it's 2
+  // 2. Math.floor(Math.random()*4) gives an integer in 0..3.  Suppose it's 2.
   // 3. value at numberArr[2], which is 2, is added to mandatoryArray
   // 4. numberArr[2] is removed, so numberArr.length becomes 3
   //    and numberArr is now [0,1,3]
@@ -125,14 +127,18 @@ function generatePassword(pwdLen,usageCounts)
     specialMandatories.sort(function(a, b){return a-b});
   }
 
-  // if not all positions are reserved, build a single array using all sets which may
+  // if not all positions are reserved as indicated by the count of mandatories being
+  // less than the password length, build a single array using all sets which may
   // be used as indicated by not having a usageCounts value of -1.  Use concat to build
   // the single array.
   var bigArray = [];
-  if (usageCounts[LOWERS]   != -1) { bigArray = bigArray.concat(LowerCaseArray);   }
-  if (usageCounts[UPPERS]   != -1) { bigArray = bigArray.concat(UpperCaseArray);   }
-  if (usageCounts[DIGITS]   != -1) { bigArray = bigArray.concat(DigitsArray);      }
-  if (usageCounts[SPECIALS] != -1) { bigArray = bigArray.concat(SpecialCharsArray);}
+  if (pwdLen > totalMandatory)
+  {
+    if (usageCounts[LOWERS]   != -1) { bigArray = bigArray.concat(LowerCaseArray);   }
+    if (usageCounts[UPPERS]   != -1) { bigArray = bigArray.concat(UpperCaseArray);   }
+    if (usageCounts[DIGITS]   != -1) { bigArray = bigArray.concat(DigitsArray);      }
+    if (usageCounts[SPECIALS] != -1) { bigArray = bigArray.concat(SpecialCharsArray);}
+  }
 
   // loop through all password positions.  At each, check if it is an assigned set position
   // and fill at random from that set if so.  Otherwise, assign to the position at random
@@ -193,11 +199,21 @@ function writePassword()
   var digitsMustUse   = Number(document.querySelector("#digitsMustUse"  ).value);
   var specialsMustUse = Number(document.querySelector("#specialsMustUse").value);
 
+  // build the data structure used by generatePassword().
+  // (see generatePassword()).
+  // also find sum of mandatories for use by generatePassword()
+  var usageCounts = [0,0,0,0];
+  totalMandatory = 0;
+  if (mayUseLowerCase) {totalMandatory += (usageCounts[LOWERS]   =   lowersMustUse)} else {usageCounts[LOWERS]   = -1;}
+  if (mayUseUpperCase) {totalMandatory += (usageCounts[UPPERS]   =   uppersMustUse)} else {usageCounts[UPPERS]   = -1;}
+  if (mayUseDigits   ) {totalMandatory += (usageCounts[DIGITS]   =   digitsMustUse)} else {usageCounts[DIGITS]   = -1;}
+  if (mayUseSpecials ) {totalMandatory += (usageCounts[SPECIALS] = specialsMustUse)} else {usageCounts[SPECIALS] = -1;}
+    
   // check for more mandatories requested than length allows.  Pop an alert if so,
   // then let the user fix the assignments before trying again.
-  if (pwdLen < (totalMandatory = lowersMustUse+uppersMustUse+digitsMustUse+specialsMustUse))
+  if (pwdLen < totalMandatory)
   {
-    alert("Oops! Total mandatory characters exceeds password length by " + 
+    alert("Oops! Total mandatory characters for chosen character types\nexceeds password length by " + 
           (totalMandatory-pwdLen)+".\n\nPlease adjust password length, " +
           "mandatory counts, or both!");
   }
@@ -207,16 +223,8 @@ function writePassword()
   }
   else
   {
-    // build the data structure used by generatePassword().
-    // (see generatePassword()).
-    var usageCounts = [0,0,0,0];
-    usageCounts[LOWERS]   = mayUseLowerCase ? lowersMustUse   : -1;
-    usageCounts[UPPERS]   = mayUseUpperCase ? uppersMustUse   : -1;
-    usageCounts[DIGITS]   = mayUseDigits    ? digitsMustUse   : -1;
-    usageCounts[SPECIALS] = mayUseSpecials  ? specialsMustUse : -1;
-    
     // call password generator 
-    var password = generatePassword(pwdLen,usageCounts);
+    var password = generatePassword(pwdLen,totalMandatory,usageCounts);
 
     // create an object for display in the password box
     // and assign the password string to the object.

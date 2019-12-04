@@ -15,89 +15,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <!-- Bootstrap Grid -->
+    <!-- Bootstrap Grid.  Note use of class="col-auto mr-auto". This bootstrap class left-justifies
+      its enclosed content, so resizing the page does not affect the appearance of the page elements. -->
     <div class="container">
 
         <!-- Row 1 is the Name Box -->
         <div class="row">
             <!-- Text Box -->
-            <div class="col-sm-6">
+            <div class="col-auto mr-auto">
                 <div class="NameBox">
-                    <h3>rguthrie's</h3>
-                    <h2>Password Generator</h2>
+                    <h5>rguthrie's</h5>
+                    <h4>Password Generator</h4>
                 </div>
-            </div>
-            <div class="col-sm-6">
             </div>
         </div>
 
         <!-- Row 2 requests password length -->
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-auto mr-auto">
               <label for="pwdLen" id="lenQuery">How many characters? (8-128):</label>
               <input type="number" id="pwdLen" name="pwdLen" class="numericBox" step="1" min="8" max="128" value="8" required="">
-            </div>
-            <div class="col-sm-6">
             </div>
         </div>
 
         <!-- Row 3 is the header for dialogs -->
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-auto mr-auto">
               <h6 class="dialogHeader">Composition of Password</h6>
-            </div>
-            <div class="col-sm-6">
             </div>
         </div>
 
         <!-- Row 4 has character set permission checkboxes.  Each has a corresponding dialog
         for entry of the minimum number of the character set which must be in the password. -->
         <div class="row">
-            <!-- checkboxes -->
-            <div class="col-sm-6">
+            <div class="col-auto mr-auto">
+
+              <!-- sets of 1 checkbox and 1 numeric entry, one set per character type -->
+
+              <!-- Lowercase -->
               <label class="form-check-label" for="mayUseLowerCase">
               <input class="form-check-input" type="checkbox" checked value="1" id="mayUseLowerCase">
                 Use Lowercase (a-z); if checked must use at least
               </label>                
               <label for="lowersMustUse" class="numberBox">
-                <input type="number" name="pwdLen" step="1" min="0" max="128" value="2" id="lowersMustUse" class="numericBox" required="">
+                <input type="number" name="pwdLen" 
+                  id="lowersMustUse" class="numericBox" 
+                  step="1" min="0" max="128" value="2" required="">
               </label>
-
+              <br>
+              <!-- Uppercase -->
               <label class="form-check-label" for="mayUseUpperCase">
                 <input class="form-check-input" type="checkbox" checked value="1" id="mayUseUpperCase">
                 Use Uppercase (A-Z); if checked must use at least
               </label>
               <label for="uppersMustUse" class="numberBox">
-                <input type="number" name="pwdLen" step="1" min="0" max="128" value="2" id="uppersMustUse" class="numericBox" required="">
+                <input type="number" name="pwdLen" 
+                  id="uppersMustUse" class="numericBox" 
+                  step="1" min="0" max="128" value="2" required="">
               </label>
-
+              <br>
+              <!-- Digits -->
               <label class="form-check-label" for="mayUseDigits">
                 <input class="form-check-input" type="checkbox" checked value="1" id="mayUseDigits">
                 Use Digits (0-9); if checked must use at least
               </label>
               <label for="digitsMustUse" class="numberBox">
-                <input type="number" name="pwdLen" step="1" min="0" max="128" value="2" id="digitsMustUse" class="numericBox" required="">
+                <input type="number" name="pwdLen" 
+                  id="digitsMustUse" class="numericBox" 
+                  step="1" min="0" max="128" value="2" required="">
               </label>
-
+              <br>
+              <!-- Specials -->
               <label class="form-check-label" for="mayUseSpecials">
                 <input class="form-check-input" type="checkbox" checked value="1" id="mayUseSpecials">
                 Use Specials (!#$, etc.); if checked must use at least
               </label>
               <label for="specialsMustUse" class="numberBox">
-                <input type="number" name="pwdLen" step="1" min="0" max="128" value="2" id="specialsMustUse" class="numericBox" required="">
+                <input type="number" name="pwdLen" 
+                  id="specialsMustUse" class="numericBox" 
+                  step="1" min="0" max="128" value="2" required="">
               </label>
             </div>
-
-            <div class="col-sm-6">
-            </div>
-
         </div>
 
         <!-- Row 5, two columns; first column has two sub-rows for the password area on top
-        and buttons on the bottom. -->
+        and buttons on the bottom. 
+        Continuing to use bootstrap class "col-auto mr-auto" -->
         <div class="row">
-            <!-- first column -->
-            <div class="col-sm-6">
+            <div class="col-auto mr-auto">
+              <!-- password display box -->
               <div class="row">
                 <div class="col-sm-12">
                   <label for="password" class="passwordBox">
@@ -105,6 +111,8 @@
                   </label>  
                 </div>
               </div>    
+
+              <!-- generate password and Copy to Clipboard buttons -->
               <div class="row">
                 <div class="col-sm-12">
                     <button id="generate" class="btn">Generate Password</button>
@@ -112,9 +120,6 @@
                 </div>
               </div>
             </div>  
-
-            <div class="col-sm-6">
-            </div>
         </div>
 
     </div>

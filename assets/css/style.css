@@ -1,20 +1,15 @@
 /* CSS for rguthrie's Password Generator
-This set of CSS rule-sets supports the About Me, Portfolio, and Contact pages.
-Each of those pages has its own HTML file, with About Me supported in the 
-index.html file.
+CSS rule-sets for the Password Generator.  This page is being kept simple
+because it is a simple utility.  It has more of feel of legitimacy with
+plain background and simple controls.
  */
-
-/* Background for page */
-/* body {
-  background-image: url("../images/darkgray-backsplash-tile.jpg");
-} */
 
 /* NameBox - yellow "pill" with title. */
 .NameBox {
-    width: 75%;
+    width: 150%;
     height: 100px;
-    padding: 4px;
-    margin: 20px 0 20px 40px;
+    padding: 10px;
+    margin: 10px 0 20px 15px;
     text-align: center;
     background: yellow;
     color: black;
@@ -22,7 +17,7 @@ index.html file.
     border: solid 1px black;
 }
 
-/* */
+/* UI - password length */
 #lenQuery {
     font-size: 1rem;
     font-weight: 500;
@@ -31,29 +26,35 @@ index.html file.
     text-align: center;
 }
 
+/* title for permissions and mandatories section */
 .dialogHeader {
     padding: 10px 0;
     margin: 5px 0 0 0;
  }
 
+/* label between permission checkbox and mandatory count.
+width provides alignment with password display below. */
 .form-check-label {
     width: 360px;
     margin: 0 0 0 20px;
     line-height: 2.0;
 }
 
+/* tailoring of the checkbox */
 .form-check-input {
   height: 20px;
   width:  20px;
   margin: 6px 0 0 -20px;
 }
 
+/* tailoring of numeric entry */
 .numericBox {
   width: 50px;
   height: 20px;
   margin: 3px;
 }
 
+/* password display box */
 .passwordBox > #password {
     width: 437px;
     height: 110px;
@@ -63,9 +64,10 @@ index.html file.
     background: lightgray;
 }
 
+/* common formatting of generate and copy buttons */
 #generate, #copyBtn {
     width: 40%;
-    margin: 0 1% 0 20px;
+    margin: 0 2px 0 0px;
     color: white;
     font-size: 1rem;
     font-weight: 500;
@@ -74,6 +76,7 @@ index.html file.
     border: solid 1px;
 }
 
+/* specific formatting of generate button */
 #generate {
   background-color: red;
   text-height: 24px;
@@ -81,6 +84,7 @@ index.html file.
   border: black;
 }
 
+/*specific formatting of copy button */
 #copyBtn {
   background-color: lightgray;
   text-height: 24px;
@@ -88,6 +92,8 @@ index.html file.
   border: gray;
 }
 
+/* formatting of copy button to be used when the 
+button is enabled. */
 #copyBtn.buttonEnabled {
   background-color: green;
   border: black;
@@ -95,33 +101,7 @@ index.html file.
 
 /* Responsive coding using breakpoints */
 
-/* Width at 768px and below */
-@media screen and (max-width: 768px) {
-  body {
-    background-color: #333;
-  }
-
-  .container {
-    width: 100%;
-    padding: 20px;
-  }
-}
-
-/* Width at 320px and below */
-@media screen and (max-width: 320px) {
-  body {
-    background-color: #333;
-  }
-
-  .NameBox.h3 {
-    font-size: 12px;
-  }
-
-  .container {
-    width: 100%;
-    padding: 20px;
-  }
-}
-
+/* breakpoints are not needed - the elements of Password Generator 
+are very tolerant of horizontal squeezing. */
 
 
